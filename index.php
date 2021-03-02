@@ -59,50 +59,52 @@ if (!isset($_COOKIE['orders'])) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (!empty($_POST['email'])) {
-        $userEmail = check($_POST['email']);
-        $userEmail = filter_var($userEmail, FILTER_VALIDATE_EMAIL);
-        $_SESSION['email'] = $userEmail;
-        if ($userEmail == false) {
+    $user_arr = [
+    'userEmail' => "",
+    'userStreet' => "",
+    'userStreetnumber' => "",
+    'userCity' => "",
+    'userZipcode' => ""
+];
+
+    if (empty($_POST['email'])) {
+        $error_email = '* This is a required field!';
+    } else {
+        $user_arr['userEmail'] = check($_POST['email']);
+        $user_arr['userEmail'] = filter_var($user_arr['userEmail'], FILTER_VALIDATE_EMAIL);
+        $_SESSION['email'] = $user_arr['userEmail'];
+        if ($user_arr['userEmail'] == false) {
             $error_email = '* Invalid Email!';
         }
-    } else {
-        $error_email = '* This is a required field!';
     }
-    if (!empty($_POST['street'])) {
-        $userStreet = check($_POST['street']);
-        $_SESSION['street'] = $userStreet;
-    } else {
+    if (empty($_POST['street'])) {
         $error_street = '* This is a required field!';
-    }
-    if (!empty($_POST['streetnumber'])) {
-        $userStreetnumber = check($_POST['streetnumber']);
-        $userStreetnumber = min($_POST['streetnumber'], MAX_NUM);
-        $_SESSION['streetnumber'] = $userStreetnumber;
     } else {
+        $user_arr['userStreet'] = check($_POST['street']);
+        $_SESSION['street'] = $user_arr['userStreet'];
+    }
+    if (empty($_POST['streetnumber'])) {
         $error_number = "* This is a required field!";
-    }
-    if (!empty($_POST['city'])) {
-        $userCity = check($_POST['city']);
-        $_SESSION['city'] = $userCity;
     } else {
-        $error_street = "* This is a required field!";
+        $user_arr['userStreetnumber'] = check($_POST['streetnumber']);
+        $user_arr['userStreetnumber'] = min($_POST['streetnumber'], MAX_NUM);
+        $_SESSION['streetnumber'] = $user_arr['userStreetnumber'];
     }
-    if (!empty($_POST['zipcode'])) {
-        $userZipcode = check($_POST['zipcode']);
-        $_SESSION['zipcode'] = $userZipcode;
+    if (empty($_POST['city'])) {
+        $error_street = "* This is a required field!";
     } else {
-        $error_street = "* This is a required field!";
+        $user_arr['userCity'] = check($_POST['city']);
+        $_SESSION['city'] = $user_arr['userCity'];
     }
-    $user_arr = [
-        'userEmail' => $userEmail,
-        'userStreet' => $userStreet,
-        'userStreetnumber' => $userStreetnumber,
-        'userCity' => $userCity,
-        'userZipcode' => $userZipcode
-    ];
+    if (empty($_POST['zipcode'])) {
+        $error_street = "* This is a required field!";
+    } else {
+        $user_arr['userZipcode'] = check($_POST['zipcode']);
+        $_SESSION['zipcode'] = $user_arr['userZipcode'];
+    }
 
 
+if (isset($_POST['submit1'])){
     if (!empty($_POST['products']) && empty($_POST['express_delivery'])) {
         foreach ($_POST['products'] as $i => $product) {
             $totalValue += $products[$i]['price'] * $_POST['products'][$i];
@@ -122,6 +124,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         setcookie('orders', (string)$totalValue, time() + 3600);
         echo "Your order will be delivered at " . $fast_order_time . "!";
     }
+    unset($_POST);
+    header("Location: ".$_SERVER['PHP_SELF']);
+}
+
+
 }
 
 
